@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'go-ai-service'
+    static_configs:
+      - targets: ['app:8080']
+        labels:
+          service: 'go-ai-service'
+          environment: 'development'
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: /
+    params:
+      format: [prometheus]
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
