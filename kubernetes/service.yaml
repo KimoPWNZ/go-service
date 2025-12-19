@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: go-ai-service
+  name: go-service
   namespace: default
   labels:
-    app: go-ai-service
+    app: go-service
 spec:
   selector:
-    app: go-ai-service
+    app: go-service
   ports:
     - name: http
       port: 8080

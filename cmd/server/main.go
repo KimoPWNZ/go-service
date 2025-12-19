@@ -40,7 +40,8 @@ func main() {
 
 	if err := redisClient.Ping(ctx); err != nil {
 		sugar.Errorf("Failed to connect to Redis: %v", err)
-		os.Exit(1)
+		// Вместо os.Exit(1), можно продолжить без Redis или ретраить
+		sugar.Warn("Continuing without Redis cache")
 	}
 	sugar.Info("Connected to Redis successfully")
 
