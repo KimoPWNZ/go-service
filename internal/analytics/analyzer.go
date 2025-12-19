@@ -160,7 +160,7 @@ func (a *AnalyticsService) GetSummary() map[string]interface{} {
 	var totalMetrics int
 	var anomalyCount int
 
-	for deviceID, metrics := range a.metricsCache {
+	for _, metrics := range a.metricsCache {
 		totalMetrics += len(metrics)
 
 		if len(metrics) > 0 {
