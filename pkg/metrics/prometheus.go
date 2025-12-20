@@ -90,10 +90,6 @@ func InitMetrics() {
 				Buckets: prometheus.LinearBuckets(-10, 1, 40),
 			},
 		)
-
-		// Удалены ручные регистрации, чтобы избежать дублирования (promauto регистрирует автоматически)
-		// prometheus.MustRegister(goCollector)
-		// prometheus.MustRegister(processCollector)
 	})
 }
 
