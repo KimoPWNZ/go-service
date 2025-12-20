@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"go-ai-service/internal/cache"
-	"go-ai-service/internal/models"
+	"go-service/internal/cache"
+	"go-service/internal/models"
 
 	"go.uber.org/zap"
 )
@@ -33,7 +33,7 @@ func NewAnalyticsService(redis *cache.RedisClient, windowSize int, threshold flo
 		threshold:    threshold,
 		metricsCache: make(map[string][]models.Metric),
 		anomalyChan:  make(chan models.AnalyticsResult, 100),
-		logger:       zap.NewNop().Sugar(), // Инициализируем заглушкой, чтобы избежать nil
+		logger:       zap.NewNop().Sugar(), // Инициализируем заглушкой
 	}
 }
 

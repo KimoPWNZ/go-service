@@ -3,6 +3,7 @@ package metrics
 import (
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -108,4 +109,16 @@ func RecordZScore(value float64) {
 
 func RecordRedisOperation(operation string) {
 	RedisOperations.WithLabelValues(operation).Inc()
+}
+
+func RecordRequest(endpoint string) {
+	RequestsProcessed.WithLabelValues(endpoint).Inc()
+}
+
+func RecordRequestDuration(endpoint string, duration time.Duration) {
+	RequestDuration.WithLabelValues(endpoint).Observe(duration.Seconds())
+}
+
+func RecordMetricProcessed() {
+	MetricsProcessed.Inc()
 }

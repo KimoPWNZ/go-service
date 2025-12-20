@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"go-ai-service/internal/analytics"
-	"go-ai-service/internal/cache"
-	"go-ai-service/internal/handlers"
-	"go-ai-service/pkg/metrics"
+	"go-service/internal/analytics"
+	"go-service/internal/cache"
+	"go-service/internal/handlers"
+	"go-service/pkg/metrics"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -51,7 +51,7 @@ func main() {
 
 	// Инициализация аналитики
 	analyticsService := analytics.NewAnalyticsService(redisClient, 50, 2.0)
-	analyticsService.SetLogger(sugar) // Устанавливаем логгер
+	analyticsService.SetLogger(sugar)
 
 	// Инициализация метрик Prometheus
 	metrics.InitMetrics()

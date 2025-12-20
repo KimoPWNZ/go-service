@@ -10,34 +10,26 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// RedisClient обертка для Redis клиента
+// RedisClient обертка для клиента Redis
 type RedisClient struct {
 	client *redis.Client
 }
 
-// NewRedisClient создает новый Redis клиент
+// NewRedisClient создает новый клиент Redis
 func NewRedisClient() *RedisClient {
-	host := os.Getenv("REDIS_HOST")
-	if host == "" {
-		host = "localhost"
-	}
+	host := getEnv("REDIS_HOST", "localhost")
+	port := getEnv("REDIS_PORT", "6379")
+	password := getEnv("REDIS_PASSWORD", "")
 
-	port := os.Getenv("REDIS_PORT")
-	if port == "" {
-		port = "6379"
-	}
+	addr := fmt.Sprintf("%s:%s", host, port)
 
-	password := os.Getenv("REDIS_PASSWORD")
-	db := 0
-
-	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", host, port),
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     addr,
 		Password: password,
-		DB:       db,
-		PoolSize: 20,
+		DB:       0,
 	})
 
-	return &RedisClient{client: client}
+	return &RedisClient{client: rdb}
 }
 
 // Ping проверяет подключение к Redis
@@ -45,58 +37,47 @@ func (r *RedisClient) Ping(ctx context.Context) error {
 	return r.client.Ping(ctx).Err()
 }
 
-// Close закрывает подключение к Redis
-func (r *RedisClient) Close() error {
-	return r.client.Close()
-}
-
 // Set сохраняет значение в Redis
 func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	data, err := json.Marshal(value)
 	if err != nil {
-		return fmt.Errorf("failed to marshal value: %w", err)
+		return err
 	}
-
 	return r.client.Set(ctx, key, data, expiration).Err()
 }
 
 // Get получает значение из Redis
 func (r *RedisClient) Get(ctx context.Context, key string, dest interface{}) error {
-	data, err := r.client.Get(ctx, key).Bytes()
+	data, err := r.client.Get(ctx, key).Result()
 	if err != nil {
-		return fmt.Errorf("failed to get key %s: %w", key, err)
+		return err
 	}
-
-	return json.Unmarshal(data, dest)
+	return json.Unmarshal([]byte(data), dest)
 }
 
-// Increment увеличивает счетчик
-func (r *RedisClient) Increment(ctx context.Context, key string) (int64, error) {
-	return r.client.Incr(ctx, key).Result()
+// Close закрывает соединение с Redis
+func (r *RedisClient) Close() error {
+	return r.client.Close()
 }
 
-// GetMetrics возвращает метрики Redis
-func (r *RedisClient) GetMetrics(ctx context.Context) (map[string]interface{}, error) {
-	info, err := r.client.Info(ctx).Result()
+// getEnv получает переменную окружения с дефолтным значением
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// Publish публикует сообщение в канал
+func (r *RedisClient) Publish(ctx context.Context, channel string, message interface{}) error {
+	data, err := json.Marshal(message)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	metrics := make(map[string]interface{})
-	metrics["info"] = info
-
-	// Получаем статистику ключей
-	keys, _ := r.client.Keys(ctx, "*").Result()
-	metrics["total_keys"] = len(keys)
-
-	// Получаем использование памяти
-	memory, _ := r.client.Info(ctx, "memory").Result()
-	metrics["memory_info"] = memory
-
-	return metrics, nil
+	return r.client.Publish(ctx, channel, data).Err()
 }
 
-// GetClient возвращает оригинальный Redis клиент
-func (r *RedisClient) GetClient() *redis.Client {
-	return r.client
+// Subscribe подписывается на канал
+func (r *RedisClient) Subscribe(ctx context.Context, channels ...string) *redis.PubSub {
+	return r.client.Subscribe(ctx, channels...)
 }
