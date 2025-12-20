@@ -1,35 +1,35 @@
-# Этап сборки
-FROM golang:1.22-alpine AS builder
+# Многоступенчатая сборка для уменьшения размера образа
+FROM golang:1.23-alpine AS builder
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
 # Копируем файлы зависимостей
 COPY go.mod go.sum ./
+
+# Скачиваем зависимости
 RUN go mod download
 
 # Копируем исходный код
 COPY . .
 
-# Собираем бинарник
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main ./cmd/server
+# Собираем приложение
+RUN go build -o main ./cmd/server
 
-# Финальный этап
+# Финальный этап: используем минимальный образ
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates tzdata
+# Устанавливаем ca-certificates для HTTPS-запросов
+RUN apk --no-cache add ca-certificates
 
-WORKDIR /root/
+# Копируем бинарный файл из builder
+COPY --from=builder /app/main /app/main
 
-# Копируем бинарник
-COPY --from=builder /app/main .
-COPY --from=builder /app/.env.example .env
+# Копируем .env.example если нужно
+COPY --from=builder /app/.env.example /app/.env.example
 
-# Создаем пользователя без привилегий
-RUN addgroup -g 1000 appuser && \
-    adduser -D -u 1000 -G appuser appuser && \
-    chown -R appuser:appuser /root
-
-USER appuser
+# Устанавливаем рабочую директорию
+WORKDIR /app
 
 # Открываем порт
 EXPOSE 8080
