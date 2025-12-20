@@ -91,8 +91,9 @@ func InitMetrics() {
 			},
 		)
 
-		prometheus.MustRegister(goCollector)
-		prometheus.MustRegister(processCollector)
+		// Удалены ручные регистрации, чтобы избежать дублирования (promauto регистрирует автоматически)
+		// prometheus.MustRegister(goCollector)
+		// prometheus.MustRegister(processCollector)
 	})
 }
 

@@ -1,4 +1,4 @@
-module go-service
+module go-ai-service
 
 go 1.23
 
