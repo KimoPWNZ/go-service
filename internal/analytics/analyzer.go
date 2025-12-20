@@ -33,11 +33,14 @@ func NewAnalyticsService(redis *cache.RedisClient, windowSize int, threshold flo
 		threshold:    threshold,
 		metricsCache: make(map[string][]models.Metric),
 		anomalyChan:  make(chan models.AnalyticsResult, 100),
+		logger:       zap.NewNop().Sugar(), // Инициализируем заглушкой, чтобы избежать nil
 	}
 }
 
 // SetLogger устанавливает логгер
 func (a *AnalyticsService) SetLogger(logger *zap.SugaredLogger) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	a.logger = logger
 }
 

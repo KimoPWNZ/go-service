@@ -26,7 +26,11 @@ func main() {
 	}
 
 	// Инициализация логгера
-	logger, _ := zap.NewProduction()
+	logger, err := zap.NewProduction()
+	if err != nil {
+		fmt.Printf("Failed to initialize logger: %v\n", err)
+		os.Exit(1)
+	}
 	defer logger.Sync()
 	sugar := logger.Sugar()
 
@@ -40,13 +44,14 @@ func main() {
 
 	if err := redisClient.Ping(ctx); err != nil {
 		sugar.Errorf("Failed to connect to Redis: %v", err)
-		// Вместо os.Exit(1), можно продолжить без Redis или ретраить
 		sugar.Warn("Continuing without Redis cache")
+	} else {
+		sugar.Info("Connected to Redis successfully")
 	}
-	sugar.Info("Connected to Redis successfully")
 
 	// Инициализация аналитики
 	analyticsService := analytics.NewAnalyticsService(redisClient, 50, 2.0)
+	analyticsService.SetLogger(sugar) // Устанавливаем логгер
 
 	// Инициализация метрик Prometheus
 	metrics.InitMetrics()
