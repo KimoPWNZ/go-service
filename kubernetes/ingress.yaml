@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: go-ai-service-ingress
+  name: go-service-ingress
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -18,34 +18,34 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: go-ai-service
+                name: go-service
                 port:
                   number: 8080
           - path: /health
             pathType: Prefix
             backend:
               service:
-                name: go-ai-service
+                name: go-service
                 port:
                   number: 8080
           - path: /metrics
             pathType: Prefix
             backend:
               service:
-                name: go-ai-service
+                name: go-service
                 port:
                   number: 8080
           - path: /analytics
             pathType: Prefix
             backend:
               service:
-                name: go-ai-service
+                name: go-service
                 port:
                   number: 8080
           - path: /prometheus
             pathType: Prefix
             backend:
               service:
-                name: go-ai-service
+                name: go-service
                 port:
                   number: 8080

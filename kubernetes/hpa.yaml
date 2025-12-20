@@ -1,13 +1,13 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: go-ai-service-hpa
+  name: go-service-hpa
   namespace: default
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: go-ai-service
+    name: go-service
   minReplicas: 2
   maxReplicas: 5
   metrics:

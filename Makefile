@@ -15,17 +15,17 @@ clean:
 
 # Docker commands
 docker-build:
-	docker build -t go-ai-service:latest .
+	docker build -t go-service:latest .
 
 docker-run:
-	docker run -p 8080:8080 --env-file .env go-ai-service:latest
+	docker run -p 8080:8080 --env-file .env go-service:latest
 
 # Minikube commands
 minikube-start:
 	minikube start --cpus=4 --memory=8192 --disk-size=20gb --driver=docker
 
 minikube-load:
-	minikube image load go-ai-service:latest
+	minikube image load go-service:latest
 
 # Kubernetes commands
 k8s-deploy:
@@ -35,7 +35,7 @@ k8s-status:
 	kubectl get all -n default
 
 k8s-logs:
-	kubectl logs -l app=go-ai-service -f
+	kubectl logs -l app=go-service -f
 
 k8s-clean:
 	kubectl delete -f kubernetes/
